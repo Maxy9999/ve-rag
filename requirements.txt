@@ -1,0 +1,5 @@
+# Core pipeline dependencies
+faiss-cpu
+scikit-learn
+numpy
+requests
