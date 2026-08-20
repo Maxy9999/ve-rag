@@ -1,0 +1,4 @@
+# Optional: only needed to swap TfidfEmbedder -> SentenceTransformerEmbedder
+# and to load the real MSMARCO-XI corpus. Requires network access to huggingface.co.
+sentence-transformers
+datasets

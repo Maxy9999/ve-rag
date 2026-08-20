@@ -1,0 +1,12 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Local env / secrets (API keys for Sarvam, ElevenLabs, LLM)
+.env

@@ -18,12 +18,40 @@
 
 ## Running it
 
-```bash
-pip install faiss-cpu scikit-learn numpy requests --break-system-packages
+All dependencies live in a project-local virtual environment (`.venv/`), so nothing
+is installed into the global Python. Verified on Python 3.11 (Windows).
 
-python3 test_pipeline.py        # stages 1-6 only: chunking comparison, recall@K, guardrail demo
-python3 test_full_pipeline.py   # stages 1-9: full harness, latency report, all guardrail categories
+**First-time setup:**
+
+```bash
+# Windows (PowerShell)
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -r requirements.txt
 ```
+
+**Running the tests** (with the venv activated):
+
+```bash
+python test_pipeline.py        # stages 1-6 only: chunking comparison, recall@K, guardrail demo
+python test_full_pipeline.py   # stages 1-9: full harness, latency report, all guardrail categories
+```
+
+Or without activating, by calling the venv interpreter directly:
+
+```bash
+.venv/Scripts/python.exe test_full_pipeline.py   # Windows
+.venv/bin/python test_full_pipeline.py           # macOS / Linux
+```
+
+`requirements-optional.txt` holds `sentence-transformers` and `datasets` — install those
+only when you have network access to huggingface.co and are ready to swap in the real
+embedder and the real MSMARCO-XI corpus (see *Known limitations* below).
 
 ## Key findings from the test runs (see full output in-conversation)
 
