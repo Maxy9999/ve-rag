@@ -40,6 +40,18 @@ class VectorStore:
         # (max(scores) = best match). Mixing these up silently inverts the
         # guardrail threshold logic, so this is called out explicitly.
         self._index = faiss.IndexHNSWFlat(dim, 32, faiss.METRIC_INNER_PRODUCT)
+        # efConstruction: graph connectivity built at INDEX TIME (default 40).
+        # Raised to 200 after finding, empirically, that FAISS's default
+        # leaves the HNSW graph too sparse to stay reliably navigable when
+        # the corpus has many near-duplicate/templated passages (common in
+        # real corpora too -- syndicated content, boilerplate product
+        # descriptions, repeated phrasing) -- at default=40, a query whose
+        # true best match sat in a duplicate-heavy cluster was missed
+        # entirely (not even in top-100) despite scoring highest by exact
+        # cosine similarity; brute-force search confirmed it as the correct
+        # top-1 match. Raising efConstruction fixed it. This only costs
+        # extra time at BUILD time (one-time, offline), not per-query.
+        self._index.hnsw.efConstruction = 200
         self._index.hnsw.efSearch = 64  # search-time breadth; higher = more accurate, slower
         self._chunks = []  # positional list, index i corresponds to vector row i
 
@@ -70,14 +82,22 @@ class VectorStore:
         return {"results": results, "latency_ms": elapsed_ms}
 
     def search_with_filter(self, query_vector: np.ndarray, k: int = 5,
-                            topic: str | None = None) -> dict:
+                            topic: str | None = None, over_fetch: int = 50) -> dict:
         """
         Demonstrates metadata-aware retrieval: over-fetch then filter by
         metadata attached during chunking. For large corpora you'd want a
         vector DB with native metadata filtering (Qdrant/Weaviate) instead
         of over-fetch-and-filter, but the principle is the same.
+
+        `over_fetch` matters more than it looks: with a small k (e.g. k=1)
+        and a small multiplier, the correct-topic result can sit just
+        outside the raw candidate window and get silently missed -- found
+        via testing (a k=1 query with a k*4=4 window missed a result that
+        WAS in the corpus with the right topic, simply because it ranked
+        5th on raw similarity). Defaulting to a fixed, generous floor
+        rather than scaling purely off k avoids that failure mode.
         """
-        raw = self.search(query_vector, k=max(k * 4, k))
+        raw = self.search(query_vector, k=max(k * 4, over_fetch))
         if topic is not None:
             filtered = [r for r in raw["results"] if r.metadata.get("topic") == topic]
         else:

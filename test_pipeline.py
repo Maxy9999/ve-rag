@@ -10,14 +10,15 @@ Runs and prints results for everything buildable/testable in this sandbox:
 import time
 import numpy as np
 
-from sample_data import load_passages, load_eval_pairs, load_offtopic_queries
+from sample_data import load_offtopic_queries
+from load_real_dataset import load_real_passages, load_real_eval_pairs
 from chunking import run_all_strategies
 from embedding import TfidfEmbedder
 from vector_store import VectorStore
 from harness_partial import PartialRAGHarness
 
-passages = load_passages()
-eval_pairs = load_eval_pairs()
+passages = load_real_passages()
+eval_pairs = load_real_eval_pairs()
 offtopic_queries = load_offtopic_queries()
 
 print("=" * 70)

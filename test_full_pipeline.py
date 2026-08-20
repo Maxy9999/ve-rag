@@ -13,12 +13,13 @@ set + off-topic set, with per-stage timing throughout, and prints:
   4. A latency breakdown showing WHERE the budget actually goes
 """
 
-from sample_data import load_passages, load_eval_pairs, load_offtopic_queries
+from sample_data import load_offtopic_queries
+from load_real_dataset import load_real_passages, load_real_eval_pairs
 from harness import RAGHarness
 from latency_analytics import summarize, end_to_end_summary, render_report, breakdown_share
 
-passages = load_passages()
-eval_pairs = load_eval_pairs()
+passages = load_real_passages()
+eval_pairs = load_real_eval_pairs()
 offtopic_queries = load_offtopic_queries()
 
 # Realistic run: simulated STT + LLM latency ON, small hallucination rate,

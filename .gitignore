@@ -10,3 +10,7 @@ __pycache__/
 
 # Local env / secrets (API keys for Sarvam, ElevenLabs, LLM)
 .env
+
+hf_cache/
+rag/
+general.txt
